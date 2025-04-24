@@ -12,6 +12,7 @@ import 'steps/preference_step.dart';
 import 'steps/verification_step.dart';
 import 'home_screen.dart';
 import 'steps/email_step.dart';
+import '/models/user_data.dart';
 
 class SignUpFlow extends StatefulWidget {
   @override
@@ -24,7 +25,8 @@ class _SignUpFlowState extends State<SignUpFlow> {
 
   final Color primaryColor = const Color(0xFF1B4242);
 
-  final Map<String, dynamic> userData = {};
+  final UserData userData = UserData();
+
 
   void nextPage() {
     if (currentPage < 6) {
@@ -48,38 +50,32 @@ class _SignUpFlowState extends State<SignUpFlow> {
 
   // Dummy method to simulate signup without backend
   Future<void> submitSignup() async {
-    // final url = Uri.parse('http://192.168.213.51:8080/auth/signup');
 
-    // final Map<String, dynamic> body = {
-    //   'email': userData['email'],
-    //   'password': userData['password'],
-    //   'firstname': userData['firstname'],
-    //   'lastname': userData['lastname'],
-    //   'phoneNumber': userData['phoneNumber'],
-    //   'dateOfBirth': userData['dateOfBirth'],
-    //   'gender': userData['gender'] ?? userData['Gender'],
-    // };
 
-    // try {
-    //   final response = await http.post(
-    //     url,
-    //     headers: {'Content-Type': 'application/json'},
-    //     body: jsonEncode(body),
-    //   );
+    final url = Uri.parse('http://localhost:8080/auth/signup');
 
-    //   if (response.statusCode == 200) {
-    nextPage(); // Simulate success
-    //   } else {
-    //     print('Server responded: ${response.body}');
-    //     ScaffoldMessenger.of(context).showSnackBar(
-    //       SnackBar(content: Text('Signup failed. Please try again.')),
-    //     );
-    //   }
-    // } catch (e) {
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     SnackBar(content: Text('An error occurred. Please try again.')),
-    //   );
-    // }
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(userData.toJson()),
+      );
+
+      if (response.statusCode == 200) {
+        nextPage();
+      } else {
+        print('Server responded: ${response.body}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Signup failed. Please try again.')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('An error occurred. Please try again.')),
+      );
+    }
+    // ✅ Don't forget this!
+
   }
 
   @override
@@ -118,42 +114,42 @@ class _SignUpFlowState extends State<SignUpFlow> {
               children: [
                 EmailStep(
                   onNext: (email) {
-                    userData['email'] = email;
+                    userData.email = email;
                     nextPage();
                   },
                 ),
                 PasswordStep(
                   onNext: (password) {
-                    userData['password'] = password;
+                    userData.password = password;
                     nextPage();
                   },
                   onBack: previousPage,
                 ),
                 NameStep(
                   onNext: (firstName, lastName) {
-                    userData['firstname'] = firstName;
-                    userData['lastname'] = lastName;
+                    userData.firstname = firstName;
+                    userData.lastname = lastName;
                     nextPage();
                   },
                   onBack: previousPage,
                 ),
                 phone.PhoneStep(
                   onNext: (phoneNumber) {
-                    userData['phoneNumber'] = phoneNumber;
+                    userData.phoneNumber = phoneNumber;
                     nextPage();
                   },
                   onBack: previousPage,
                 ),
                 DobStep(
                   onNext: (dob) {
-                    userData['dateOfBirth'] = dob;
+                    userData.dateOfBirth = dob;
                     nextPage();
                   },
                   onBack: previousPage,
                 ),
                 PreferenceStep(
                   onSubmit: (preferences) {
-                    userData['gender'] = (preferences == "Mr.") ? "Male" : "Female";
+                    userData.gender = (preferences == "Mr.") ? "Male" : "Female";
                     submitSignup();
                   },
                   onBack: previousPage,
@@ -162,7 +158,7 @@ class _SignUpFlowState extends State<SignUpFlow> {
                   onSubmit: (code) async {
                     /*final url = Uri.parse('http://localhost:8080/auth/verify');
                      final body = {
-                       'email': userData['email'],
+                       'email': userData.email,
                        'verificationCode': code,
                      };
 
@@ -200,3 +196,4 @@ class _SignUpFlowState extends State<SignUpFlow> {
     );
   }
 }
+
